@@ -1,0 +1,25 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<title>Métodos Numéricos</title>
+<link href="style.css" type="text/css" rel="stylesheet"/>
+<script type="text/javascript" src="funcoes.js"></script>
+</head>
+
+<body style="background-color: #FFFF99">
+	<p> <strong>UAb - 21048 Fisica Geral</strong></p>
+	<form>
+	<p>	h=<input type="text" size="4" id="h" value="0.2" /></p>
+	<p>	&nbsp;ti=<input type="text" size="4" id="ti" value="1" /></p>
+	<p>	&nbsp;tf=<input type="text" size="4" id="tf" value="4.0" /></p>
+	<p> &nbsp;xi=<input type="text" size="4" id="xi" value="0.3" />	</p>
+	<p> dx/dt=<input type="text" size="35" id="dxdt" value="(x*x*x)/(t*t)" /></p>
+	<p> <input type="button" value="Implementar" onclick="implementa();"/> </p>
+	</form>
+	<canvas id="canvas" width="440" height="440"></canvas>
+	<div id="tabela"></div>
+	<script type="text/javascript">
+			implementa();</script>
+</body>
+</html>

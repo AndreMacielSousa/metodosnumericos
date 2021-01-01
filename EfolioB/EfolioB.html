@@ -1,0 +1,289 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<title>Métodos Numéricos</title>
+<link href="style.css" type="text/css" rel="stylesheet"/>
+
+<script type="text/javascript">
+
+															//http://www.tiexpert.net/programacao/web/javascript/math.php
+
+		// Aplica função dx/dt
+		function funcao(t,x)
+		{
+		    value=(x-(Math.sin(2*t)))/(2-t);
+			return value			
+		}
+		
+		
+		//função analitica
+		function analitica (t,x)
+		{
+		    if (t == -2) { return x }
+		    else {
+		    value = (Math.pow(Math.cos(t), 2)) / (2 - t);
+		    return value}
+		}
+		
+				
+		
+		// Realiza os calculos
+		function implementa()
+		{
+			// Inicializa variaveis 
+			var h = eval(document.getElementById("h").value);
+			var ti = eval(document.getElementById("ti").value);
+			var tf = eval(document.getElementById("tf").value);
+			var xi = eval(document.getElementById("xi").value);
+
+			var xAna = xi;
+			var xEuler = xi;
+			var xHeun = xi;
+			var xRK3 = xi;
+			var ts = [];
+			var Euler = [];
+			var Heun = [];
+			var Ana = [];
+			var RK3 =[];
+			var ErrEuler=0;
+			var ErrHeun=0;
+			var ErrRK3=0;
+			var i=0;
+			var SErrEuler=0;
+			var SErrHeun=0;
+			var SErrRK3 = 0;
+
+			var tabela = "<p><table><tr>\n\
+							<td style= text-align:center;'>t</td>\
+							<td style='text-align:center;color:#000099;'>vEuler</td>\
+							<td style='text-align:center;color:#000099'>k1E</td>\
+							<td style='text-align:center;color:#990000'>vHeun</td>\
+							<td style='text-align:center;color:#990000'>k1H</td>\
+							<td style='text-align:center;color:#990000'>k2H</td>\
+							<td style='text-align:center;color:#009900'>vRK3</td>\
+							<td style='text-align:center;color:#009900'>k1R</td>\
+							<td style='text-align:center;color:#009900'>k2R</td>\
+							<td style='text-align:center;color:#009900'>k3R</td>\
+							<td style='text-align:center;color:#0066FF'>vAna</td>\
+							<td style='text-align:center;color:#000099;'>Err/Euler</td>\
+							<td style='text-align:center;color:#990000;'>Err/Heun</td>\
+							<td style='text-align:center;color:#009900;'>Err/RK3</td></tr>";
+
+            //Inicio das Iterações
+
+			for (var t = ti; t <= tf; t = t + h)
+			{
+                //chamada funcção analitica
+			    xAna = analitica(t, xi);
+				
+                //calculo kx para método de Euler
+				k1E = funcao(t,xEuler);
+				
+			    //calculo kx para método de Heun (Previsor-Corrector) / RK2
+				k1H = funcao(t, xHeun);
+				k2H = funcao(t+h, xHeun+k1H*h);
+				
+			    //calculo kx para método de Runge-Kutta de terceira ordem / RK3
+				k1R = funcao(t,xRK3);
+				k2R = funcao(t+h/2, xRK3+k1R*h/2);
+				k3R = funcao(t+h,xRK3-k1R*h+2*k2R*h);
+				
+                //Calculo Erro Absoluto da Iteração
+				ErrEuler = xAna - xEuler;
+				ErrHeun = xAna - xHeun;
+				ErrRK3 = xAna - xRK3;
+				
+                //Somatorio do Erro Absoluto para calculo da média
+				SErrEuler = SErrEuler + ErrEuler;
+				SErrHeun = SErrHeun + ErrHeun;
+				SErrRK3 = SErrRK3 + ErrRK3;
+
+				
+				// Escreve tabela (aplicação tema 3 de SSW @UAb)			
+				tabela += "<tr><td>"+t.toFixed(2)+"</td>\
+							   <td style= 'color:#000099'>"+xEuler.toFixed(8)+"</td>\
+							   <td>"+k1E.toFixed(8)+"</td>\
+							   <td style= 'color:#990000'>"+xHeun.toFixed(8)+"</td>\
+							   <td>"+k1H.toFixed(8)+"</td>\
+							   <td>"+k2H.toFixed(8)+"</td>\
+							   <td style= 'color:#009900'>"+xRK3.toFixed(8)+"</td>\
+							   <td>"+k1R.toFixed(8)+"</td>\
+							   <td>"+k2R.toFixed(8)+"</td>\
+							   <td>"+k3R.toFixed(8)+"</td>\
+							   <td style= 'color:#0066FF'>"+xAna.toFixed(8)+"</td>\
+							   <td style= 'color:#000099'>"+ErrEuler.toFixed(8)+"</td>\
+							   <td style= 'color:#000099'>"+ErrHeun.toFixed(8)+"</td>\
+							   <td style= 'color:#000099'>"+ErrRK3.toFixed(8)+"</td></tr>";
+							   
+				
+			
+				// pega pontos para exibir depois
+				ts.push(t);
+				Euler.push(xEuler);
+				Heun.push(xHeun);
+				Ana.push(xAna);
+				RK3.push(xRK3);
+				
+				// Calcula proximo pronto				
+				xEuler = xEuler + k1E * h;
+				xHeun = xHeun + 0.5 * (k1H+k2H)*h;
+				xRK3 = xRK3 + (1/6)*(k1R+4*k2R+k3R)*h;
+				
+                //iteração para calculo da média do erro absoluto
+				i++;
+				
+			}
+			
+            //Fecha tabela e prepara para ser chamamado pela página
+			tabela +="</table></p>";
+			document.getElementById("tabela").innerHTML = tabela;
+			
+	        //calcula e prepara médias erro absoluto para serem apresentadas pela página
+			document.getElementById("euler").innerHTML = "Erro Absoluto Médio Euler:" +(SErrEuler/i).toFixed(8);
+			document.getElementById("heun").innerHTML = "Erro Absoluto Médio Heun:	" +(SErrHeun/i).toFixed(8);
+			document.getElementById("rk3").innerHTML = "Erro Absoluto Médio RK3:	" +(SErrRK3/i).toFixed(8);
+
+
+			// canvas (www.w3schools.com)
+			var canvas = document.getElementById("canvas");
+			var tela = canvas.getContext("2d");
+			var sEuler = [];
+			var sHeun = [];
+			for (var i=0; i<Euler.length; i++) sEuler.push(Euler[i]); 
+			for (var i=0; i<Heun.length; i++) sHeun.push(Heun[i]); 
+			sEuler.sort(function(a,b){return a-b}); 
+			sHeun.sort(function(a,b){return a-b});
+			var min = Math.min(sEuler[0],sHeun[0]);
+			var max = Math.max(sEuler[sEuler.length-1],sHeun[sHeun.length-1]);
+			
+			//corrige bug evitando ir a infinito
+			if (max > 30*(tf-ti)) max = 30*(tf-ti); 
+			if (min < -30*(tf-ti)) min = -30*(tf-ti);
+			
+			var escalaT = (canvas.width-20)/(tf-ti);
+			var escalaX = (canvas.height-20)/(max-min);
+			
+			//limpa tela
+			tela.clearRect(0,0,canvas.width,canvas.height);
+			tela.lineCap="round";
+			tela.lineJoin="round";
+			
+			// Desenha grid
+			tela.font="10px Arial";
+			tela.fillStyle = "white";
+			tela.strokeStyle = "rgb(0,0,0)";
+			tela.beginPath();
+			tela.moveTo(20,20);
+			tela.lineTo(20,canvas.height-20);
+			tela.lineTo(canvas.width-20,canvas.height-20);
+			tela.lineTo(canvas.width-20,20);
+			tela.closePath();
+			var gridT = (canvas.width-20)/10; //*
+			for (var i=-ti*escalaT; i<=canvas.width; i+=gridT)
+			{
+				tela.moveTo(i+20,20);
+				tela.lineTo(i+20,canvas.width-20);
+				tela.fillText((i/escalaT+ti).toFixed(1),i,canvas.height-1);//8
+			}
+			var gridX = (canvas.height-20)/10;
+			for (var i=-ti*escalaT; i<=canvas.height; i+=gridX)
+			{
+				tela.moveTo(20,canvas.height-i-20);
+				tela.lineTo(canvas.width-20,canvas.height-i-20);
+				tela.fillText((i/escalaX+min).toFixed(1),0,canvas.height-i-7);
+			}
+			tela.stroke();			
+
+			
+			// grafico de Euler
+			tela.strokeStyle = "rgb(0,0,255)";
+			tela.fillText("Euler",70,10);
+			tela.beginPath();
+			tela.moveTo(70,8);
+			tela.lineTo(20,8);
+			tela.stroke();
+			tela.beginPath();
+			tela.moveTo(20,canvas.width-(xi-min)*escalaX-20);
+			for (var i=0; i<ts.length; i++)
+				tela.lineTo((ts[i]-ti)*escalaT+20,canvas.width-(Euler[i]-min)*escalaX-20);
+			tela.stroke();
+			
+			// grafico de Heun
+			tela.strokeStyle = "rgb(255,0,0)";
+			tela.fillText("Heun",170,10);
+			tela.beginPath();
+			tela.moveTo(120,8);
+			tela.lineTo(170,8);
+			tela.stroke();
+			tela.beginPath();
+			tela.moveTo(20,canvas.width-(xi-min)*escalaX-20);
+			for (var i=0; i<ts.length; i++)
+				tela.lineTo((ts[i]-ti)*escalaT+20,canvas.width-(Heun[i]-min)*escalaX-20);
+			tela.stroke();
+			
+			
+			// grafico de RK3
+			tela.strokeStyle = "rgb(0,255,0)";
+			tela.fillText("RK3",270,10);
+			tela.beginPath();
+			tela.moveTo(220,8);
+			tela.lineTo(270,8);
+			tela.stroke();
+			tela.beginPath();
+			tela.moveTo(20,canvas.width-(xi-min)*escalaX-20);
+			for (var i=0; i<ts.length; i++)
+				tela.lineTo((ts[i]-ti)*escalaT+20,canvas.width-(RK3[i]-min)*escalaX-20);
+			tela.stroke();
+			
+			// grafico de Analitico
+			tela.strokeStyle = "rgb(0,255,255)";
+			tela.fillText("Ana",370,10);
+			tela.beginPath();
+			tela.moveTo(320,8);
+			tela.lineTo(370,8);
+			tela.stroke();
+			tela.beginPath();
+			tela.moveTo(20,canvas.width-(xi-min)*escalaX-20);
+			for (var i=0; i<ts.length; i++)
+				tela.lineTo((ts[i]-ti)*escalaT+20,canvas.width-(Ana[i]-min)*escalaX-20);
+			tela.stroke();
+
+
+		}
+
+
+
+
+
+
+</script>
+</head>
+
+<body>
+	<h2> UAb - 21048 Fisica Geral </h2>
+	<h3> EfolioB - f(t,v)=(v-sin(2t)/(2-t)</h3>
+	<form>
+	<p>	h=<input type="text" size="4" id="h" value="0.15" />
+	&nbsp;ti=<input type="text" size="4" id="ti" value="-2" />
+	&nbsp;tf=<input type="text" size="4" id="tf" value="1.99" /> </p>
+	<p>	&nbsp;vi=<input type="text" size="12" id="xi" value="0.04329455" />	</p>
+	
+	<p> <input type="button" value="Implementar" onclick="implementa();"/> </p> 	<!--  Implementa novos valores carregados pelo utilizador -->
+	</form>
+	<canvas id="canvas" width="500" height="500"></canvas>							<!--  Implementa Grafico -->
+	
+	<div id="tabela"></div>															<!--  Implementa Tabela e medias do erro absoluto -->
+	<p id="rk3"></p>
+	<p id="heun"></p>
+	<p id="euler"></p>
+
+	
+	<script type="text/javascript">	implementa();</script>							<!-- Implementa em auto os valores por defeito -->
+				
+	<p>&nbsp;</p>		
+	<p style="font-size:x-small">
+	André Maciel Sousa @UAb Janeiro 2016</p>
+	
+</body>
+</html>
